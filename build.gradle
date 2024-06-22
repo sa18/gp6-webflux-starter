@@ -1,0 +1,79 @@
+buildscript {
+    ext {
+        springBootVersion = '3.2.5'
+        springDependencyManagementVersion = '1.1.4'
+    }
+    repositories {
+        //mavenCentral()
+    }
+    dependencies {
+        //classpath("org.springframework.boot:spring-boot-gradle-plugin:3.1.2")
+    }
+}
+
+plugins {
+    id 'java-library'
+    id 'org.springframework.boot' version "${springBootVersion}"
+    id 'io.spring.dependency-management' version "${springDependencyManagementVersion}"
+    id 'maven-publish'
+}
+
+group = 'ru.gp6.infrastructure'
+version = '0.0.1'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    withJavadocJar()
+    withSourcesJar()
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring
+    //implementation("org.springframework.boot:spring-boot-starter-webflux") use compileOnly instead
+    compileOnly("org.springframework.boot:spring-boot-starter-webflux")
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    testAnnotationProcessor('org.springframework.boot:spring-boot-configuration-processor')
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testAnnotationProcessor('org.projectlombok:lombok')
+
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+        /*maven {
+            name = "MyRepo" //  optional target repository name
+            url = "http://my.org.server/repo/url"
+            credentials {
+                username = 'alice'
+                password = 'my-password'
+            }
+        }*/
+    }
+}
