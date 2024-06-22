@@ -1,10 +1,11 @@
 package ru.gp6.infrastructure.webflux.logger;
 
-import org.slf4j.MDC;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
 import reactor.core.publisher.Hooks;
 
-@Configuration
+@AutoConfiguration
 public class WebfluxLoggerAutoconfiguration {
 
     public WebfluxLoggerAutoconfiguration() {
@@ -12,5 +13,12 @@ public class WebfluxLoggerAutoconfiguration {
         Hooks.enableAutomaticContextPropagation();
 
         //ContextRegistry.getInstance().registerThreadLocalAccessor("TraceId", MDC::getCopyOfContextMap, MDC::setContextMap, MDC::clear);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    //@ConditionalOnProperty(prefix = "logging.webflux.http", name = "enabled", havingValue = "true", matchIfMissing = true)
+    public LoggingFilter loggingWebFilter() {
+        return new LoggingFilter();
     }
 }

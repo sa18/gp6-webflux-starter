@@ -1,6 +1,7 @@
 package ru.gp6.infrastructure.webflux.logger;
 
 import com.github.f4b6a3.uuid.UuidCreator;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 public class LoggingFilter implements WebFilter {
@@ -20,6 +22,7 @@ public class LoggingFilter implements WebFilter {
     public static final String TRACE_ID_HEADER_NAME = "X-Trace-Id";
     public static final String TRACE_ID_CONTEXT_NAME = "TraceID";
 
+    @NonNull
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 
@@ -27,36 +30,45 @@ public class LoggingFilter implements WebFilter {
                 exchange.getRequest().getHeaders().getFirst(TRACE_ID_HEADER_NAME)
         );
 
+        final AtomicLong start = new AtomicLong();
+
         return Mono.fromCallable(() -> {
-            final long startTime = System.currentTimeMillis(); // TODO
 
-            return new ServerWebExchangeDecorator(exchange) {
-                @Override
-                public ServerHttpRequest getRequest() {
-                    return new RequestLoggingInterceptor(super.getRequest());
-                }
+                    start.set(System.nanoTime());
 
-                @Override
-                public ServerHttpResponse getResponse() {
-                    return new ResponseLoggingInterceptor(super.getResponse());
-                }
-            };
+                    return new ServerWebExchangeDecorator(exchange) {
+                        @Override
+                        public ServerHttpRequest getRequest() {
+                            return new RequestLoggingInterceptor(super.getRequest());
+                        }
 
-        }).contextWrite(context -> {
+                        @Override
+                        public ServerHttpResponse getResponse() {
+                            return new ResponseLoggingInterceptor(super.getResponse());
+                        }
+                    };
 
-            String traceId;
-            if (traceIdFromHeader.isPresent() && !traceIdFromHeader.get().isEmpty()) {
-                traceId = traceIdFromHeader.get();
-            } else {
-                traceId = UuidCreator.getTimeOrderedWithRandom().toString();
-            }
+                }).doOnNext(r -> {
 
-            MDC.put(TRACE_ID_CONTEXT_NAME, traceId);
-            Context ctx = context.put(TRACE_ID_CONTEXT_NAME, traceId);
-            exchange.getAttributes().put(TRACE_ID_CONTEXT_NAME, traceId);
+                    long timeDelta = System.nanoTime() - start.get();
+                    log.debug("Elapsed time = {}ms", timeDelta / 1_000_000);
 
-            return ctx;
+                })
+                .contextWrite(context -> {
 
-        }).flatMap(chain::filter);
+                    String traceId;
+                    if (traceIdFromHeader.isPresent() && !traceIdFromHeader.get().isEmpty()) {
+                        traceId = traceIdFromHeader.get();
+                    } else {
+                        traceId = UuidCreator.getTimeOrderedWithRandom().toString();
+                    }
+
+                    MDC.put(TRACE_ID_CONTEXT_NAME, traceId);
+                    Context ctx = context.put(TRACE_ID_CONTEXT_NAME, traceId);
+                    exchange.getAttributes().put(TRACE_ID_CONTEXT_NAME, traceId);
+
+                    return ctx;
+
+                }).flatMap(chain::filter);
     }
 }

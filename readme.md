@@ -25,3 +25,6 @@ tutorials & docs:
 не относится к делу, но тоже интересно:
 - https://dev.to/aleksk1ng/spring-webflux-and-grpc-319l
 - https://habr.com/ru/articles/537716/
+
+и вообще, оказывается, есть уже готовая либа:
+- https://github.com/lipiridi/webflux-logging
