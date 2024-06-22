@@ -53,6 +53,12 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testAnnotationProcessor('org.projectlombok:lombok')
 
+    // Slf4j
+    implementation('org.slf4j:slf4j-api:2.+')
+
+    // UUID
+    implementation('com.github.f4b6a3:uuid-creator:5.+')
+
 }
 
 tasks.named('test') {
