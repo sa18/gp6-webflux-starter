@@ -58,6 +58,10 @@ dependencies {
     // UUID
     implementation 'com.github.f4b6a3:uuid-creator:5.+'
 
+    // Test
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+
 }
 
 tasks.named('test') {

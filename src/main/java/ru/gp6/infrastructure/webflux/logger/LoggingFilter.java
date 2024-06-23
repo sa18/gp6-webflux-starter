@@ -34,41 +34,48 @@ public class LoggingFilter implements WebFilter {
 
         return Mono.fromCallable(() -> {
 
-                    start.set(System.nanoTime());
+            start.set(System.nanoTime());
 
-                    return new ServerWebExchangeDecorator(exchange) {
-                        @Override
-                        public ServerHttpRequest getRequest() {
-                            return new RequestLoggingInterceptor(super.getRequest());
-                        }
+            return new ServerWebExchangeDecorator(exchange) {
+                @Override
+                public ServerHttpRequest getRequest() {
+                    return new RequestLoggingInterceptor(super.getRequest());
+                }
 
-                        @Override
-                        public ServerHttpResponse getResponse() {
-                            return new ResponseLoggingInterceptor(super.getResponse());
-                        }
-                    };
+                @Override
+                public ServerHttpResponse getResponse() {
+                    return new ResponseLoggingInterceptor(super.getResponse());
+                }
+            };
 
-                }).doOnNext(r -> {
+        }).doOnError(r -> {
 
-                    long timeDelta = System.nanoTime() - start.get();
-                    log.debug("Elapsed time = {}ms", timeDelta / 1_000_000);
+            log.info("Request ended with error: {}", r.getMessage());
 
-                })
-                .contextWrite(context -> {
+        }).doOnCancel(() -> {
 
-                    String traceId;
-                    if (traceIdFromHeader.isPresent() && !traceIdFromHeader.get().isEmpty()) {
-                        traceId = traceIdFromHeader.get();
-                    } else {
-                        traceId = UuidCreator.getTimeOrderedWithRandom().toString();
-                    }
+            log.info("Request cancelled");
 
-                    MDC.put(TRACE_ID_CONTEXT_NAME, traceId);
-                    Context ctx = context.put(TRACE_ID_CONTEXT_NAME, traceId);
-                    exchange.getAttributes().put(TRACE_ID_CONTEXT_NAME, traceId);
+        }).doOnNext(r -> {
 
-                    return ctx;
+            long timeDelta = System.nanoTime() - start.get();
+            log.info("Elapsed time = {}ms", timeDelta / 1_000);
 
-                }).flatMap(chain::filter);
+        }).contextWrite(context -> {
+
+            String traceId;
+            if (traceIdFromHeader.isPresent() && !traceIdFromHeader.get().isEmpty()) {
+                traceId = traceIdFromHeader.get();
+            } else {
+                traceId = UuidCreator.getTimeOrderedWithRandom().toString();
+            }
+
+            MDC.put(TRACE_ID_CONTEXT_NAME, traceId);
+            Context ctx = context.put(TRACE_ID_CONTEXT_NAME, traceId);
+            exchange.getAttributes().put(TRACE_ID_CONTEXT_NAME, traceId);
+
+            return ctx;
+
+        }).flatMap(chain::filter);
     }
 }
