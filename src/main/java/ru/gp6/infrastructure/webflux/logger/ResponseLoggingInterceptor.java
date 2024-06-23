@@ -15,11 +15,9 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 public class ResponseLoggingInterceptor extends ServerHttpResponseDecorator {
-    private final AtomicLong start;
 
-    public ResponseLoggingInterceptor(ServerHttpResponse delegate, AtomicLong start) {
+    public ResponseLoggingInterceptor(ServerHttpResponse delegate) {
         super(delegate);
-        this.start = start;
     }
 
     @Override

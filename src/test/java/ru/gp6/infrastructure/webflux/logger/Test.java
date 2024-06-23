@@ -1,7 +1,6 @@
 package ru.gp6.infrastructure.webflux.logger;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -39,12 +38,12 @@ class TestController {
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @Slf4j
-public class LoggingFilterTest {
+public class Test {
 
     @Autowired
     private WebTestClient webTestClient;
 
-    @Test
+    @org.junit.jupiter.api.Test
     void в_логе_должна_быть_напечатаны_время_и_заголовки() {
         var result = webTestClient
                 .get()
@@ -56,7 +55,7 @@ public class LoggingFilterTest {
         log.info("result: {}", result);
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     void в_логе_должна_быть_напечатаны_время_и_информация_об_ошибке() {
         var result = webTestClient
                 .get()
