@@ -1,6 +1,5 @@
 package ru.gp6.infrastructure.webflux.logger;
 
-import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -48,6 +47,17 @@ public class LoggingFilter implements WebFilter {
                 }
             };
 
+        }).doOnEach(signal -> {
+
+            if (signal.isOnComplete() || signal.isOnError()) {
+                log.debug("requestId: {}, method: {}, path: {}",
+                        exchange.getRequest().getId(),
+                        exchange.getRequest().getMethod(),
+                        exchange.getRequest().getPath());
+
+                //exchange.getResponse().getStatusCode();
+            }
+
         }).doOnError(r -> {
 
             log.info("Request ended with error: {}", r.getMessage());
@@ -59,7 +69,7 @@ public class LoggingFilter implements WebFilter {
         }).doOnNext(r -> {
 
             long timeDelta = System.nanoTime() - start.get();
-            log.info("Elapsed time = {}ms", timeDelta / 1_000);
+            log.debug("Elapsed time = {}ms", timeDelta / 1_000);
 
         }).contextWrite(context -> {
 
@@ -67,7 +77,8 @@ public class LoggingFilter implements WebFilter {
             if (traceIdFromHeader.isPresent() && !traceIdFromHeader.get().isEmpty()) {
                 traceId = traceIdFromHeader.get();
             } else {
-                traceId = UuidCreator.getTimeOrderedWithRandom().toString();
+                //traceId = UuidCreator.getTimeOrderedWithRandom().toString();
+                traceId = exchange.getRequest().getId();
             }
 
             MDC.put(TRACE_ID_CONTEXT_NAME, traceId);

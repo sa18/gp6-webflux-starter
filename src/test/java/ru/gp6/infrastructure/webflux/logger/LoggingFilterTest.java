@@ -2,12 +2,16 @@ package ru.gp6.infrastructure.webflux.logger;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 
 @SpringBootApplication
 class TestApp {
@@ -17,9 +21,10 @@ class TestApp {
 @Slf4j
 class TestController {
     @GetMapping("/test")
-    public Integer test() {
+    public Mono<Integer> test() {
         log.info("Hello from test controller (success)");
-        return 777;
+        return Mono.just(777)
+                .delayElement(Duration.of(2200, ChronoUnit.MILLIS));
     }
 
     @GetMapping("/test-exception")
@@ -30,38 +35,36 @@ class TestController {
 
 
 @SpringBootTest(
-        classes = {TestApp.class, WebfluxLoggerAutoconfiguration.class},
-        webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT,
-        properties = {
-                "server.port=8080"
-        }
+        classes = {TestApp.class},
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @Slf4j
 public class LoggingFilterTest {
 
+    @Autowired
+    private WebTestClient webTestClient;
+
     @Test
     void в_логе_должна_быть_напечатаны_время_и_заголовки() {
-        var result = WebClient.create("http://localhost:8080/test")
+        var result = webTestClient
                 .get()
+                .uri("/test")
                 .header("Some-Custom-Header", Math.random() + "")
                 .header("Content-Type", "application/json")
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Integer>() {
-                })
-                .block();
+                .exchange()
+                .returnResult(Integer.class);
         log.info("result: {}", result);
     }
 
     @Test
     void в_логе_должна_быть_напечатаны_время_и_информация_об_ошибке() {
-        var result = WebClient.create("http://localhost:8080/test-exception")
+        var result = webTestClient
                 .get()
+                .uri("/test-exception")
                 .header("Some-Custom-Header", Math.random() + "")
                 .header("Content-Type", "application/json")
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Integer>() {
-                })
-                .block();
+                .exchange()
+                .returnResult(Integer.class);
         log.info("result: {}", result);
     }
 }
