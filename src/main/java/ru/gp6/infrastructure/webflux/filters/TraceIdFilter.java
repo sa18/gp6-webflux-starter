@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Фильтр создаёт параметр TraceID и вставляет его в атрибуты ServerWebExchange и в MDC
+ * Фильтр создаёт параметр TraceID и вставляет его в Reactor Context, в ServerWebExchange и в MDC
  */
 @Slf4j
 public class TraceIdFilter implements WebFilter {
