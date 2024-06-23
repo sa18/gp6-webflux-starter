@@ -1,4 +1,4 @@
-package ru.gp6.infrastructure.webflux.logger;
+package ru.gp6.infrastructure.webflux.filters;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.buffer.DataBuffer;

@@ -1,7 +1,12 @@
 <configuration>
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <layout>
-            <Pattern>%-4r [%thread] %-5level TraceID:%mdc{TraceID} - %msg%n</Pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </layout>
+    </appender>
+    <appender name="CONSOLE_WITH_TRACE_ID" class="ch.qos.logback.core.ConsoleAppender">
+        <layout>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level TraceID=%mdc{TraceID} %logger{36} - %msg%n</pattern>
         </layout>
     </appender>
 
@@ -9,6 +14,6 @@
         <appender-ref ref="CONSOLE"/>
     </root>
     <logger name="ru.gp6.infrastructure" level="DEBUG" additivity="false">
-        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="CONSOLE_WITH_TRACE_ID"/>
     </logger>
 </configuration>

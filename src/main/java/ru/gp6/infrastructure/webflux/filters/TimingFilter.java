@@ -1,4 +1,4 @@
-package ru.gp6.infrastructure.webflux.logger;
+package ru.gp6.infrastructure.webflux.filters;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -21,12 +21,11 @@ public class TimingFilter implements WebFilter {
 
         final AtomicLong start = new AtomicLong();
 
-        return Mono.fromCallable(() -> {
+        return chain.filter(exchange)
+                .doFirst(() -> {
                     start.set(System.nanoTime());
                     log.debug("Request started at {}", System.currentTimeMillis());
-                    return exchange;
                 })
-                .flatMap(chain::filter)
                 .doFinally(r -> {
 
                     long timeDelta = System.nanoTime() - start.get();

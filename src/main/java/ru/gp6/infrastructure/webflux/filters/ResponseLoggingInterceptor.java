@@ -1,4 +1,4 @@
-package ru.gp6.infrastructure.webflux.logger;
+package ru.gp6.infrastructure.webflux.filters;
 
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.channels.Channels;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 public class ResponseLoggingInterceptor extends ServerHttpResponseDecorator {

@@ -1,1 +1,1 @@
-ru.gp6.infrastructure.webflux.logger.WebfluxLoggerAutoconfiguration
+ru.gp6.infrastructure.webflux.filters.WebfluxLoggerAutoconfiguration

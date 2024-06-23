@@ -1,4 +1,4 @@
-package ru.gp6.infrastructure.webflux.logger;
+package ru.gp6.infrastructure.webflux.filters;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -17,8 +17,8 @@ public class WebfluxLoggerAutoconfiguration {
 
     @Bean
     @Order(20)
-    public TraceIDFilter traceIDFilter() {
-        return new TraceIDFilter();
+    public TraceIdFilter traceIDFilter() {
+        return new TraceIdFilter();
     }
 
     @Bean
@@ -27,9 +27,20 @@ public class WebfluxLoggerAutoconfiguration {
         return new TimingFilter();
     }
 
-    /*@Bean
+    @Bean
     @Order(22)
-    public HTTPHeadersLoggingFilter httpHeadersLoggingFilter() {
-        return new HTTPHeadersLoggingFilter();
+    public HttpRequestFilter httpRequestMethodFilter() {
+        return new HttpRequestFilter();
+    }
+
+    @Bean
+    @Order(23)
+    public HttpResponseFilter httpResponseFilter() {
+        return new HttpResponseFilter();
+    }
+
+    /*@Bean
+    public ErrorHandler errorHandler() {
+        return new ErrorHandler();
     }*/
 }
