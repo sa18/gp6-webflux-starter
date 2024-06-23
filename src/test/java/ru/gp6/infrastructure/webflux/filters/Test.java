@@ -38,6 +38,7 @@ class TestController {
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
 @Slf4j
+//@AutoConfigureWebTestClient(timeout = "100")
 public class Test {
 
     @Autowired

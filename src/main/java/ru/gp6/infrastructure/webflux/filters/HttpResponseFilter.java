@@ -16,19 +16,21 @@ public class HttpResponseFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 
-        AtomicReference<Throwable> error = new AtomicReference(null);
-        AtomicReference<Boolean> isCanceled = new AtomicReference(false);
+        final AtomicReference<Throwable> error = new AtomicReference(null);
+        final AtomicReference<Boolean> isCanceled = new AtomicReference(false);
 
-        return chain.filter(exchange)
-                .onErrorComplete(err -> {
-                    error.set(err);
-                    return false;
-                })
-                .doOnCancel(() -> {
-                    log.debug("Request cancelled by origin");
-                    isCanceled.set(true);
-                })
-                .doFinally(signal -> {
+        return Mono.zip(
+                chain.filter(exchange)
+                        .onErrorComplete(err -> {
+                            error.set(err);
+                            return false;
+                        })
+                        .doOnCancel(() -> {
+                            log.debug("Request cancelled by origin");
+                            isCanceled.set(true);
+                        }),
+
+                Mono.never().doFinally(signalType -> {
                     log.debug("HTTP Response Status = {}", exchange.getResponse().getStatusCode());
 
                     if (!isCanceled.get() && exchange.getResponse().getStatusCode().is2xxSuccessful()) {
@@ -45,7 +47,8 @@ public class HttpResponseFilter implements WebFilter {
                             log.debug(error.get().getMessage(), error.get());
                         }
                     }
-                });
+                })
+        ).then();
 
     }
 }

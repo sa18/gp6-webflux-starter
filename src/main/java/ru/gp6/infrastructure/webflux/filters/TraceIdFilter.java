@@ -31,8 +31,8 @@ public class TraceIdFilter implements WebFilter {
 
         final AtomicReference<MDC.MDCCloseable> mdcClosable = new AtomicReference<>();
 
-        return Mono.defer(() -> chain.filter(exchange)
-                .contextWrite(context -> {
+        return Mono.zip(
+                chain.filter(exchange).contextWrite(context -> {
 
                     String traceId;
                     if (traceIdFromHeader.isPresent() && !traceIdFromHeader.get().isEmpty()) {
@@ -44,20 +44,23 @@ public class TraceIdFilter implements WebFilter {
                         traceId = exchange.getRequest().getId();
                     }
 
-                    log.debug("Using trace id {}", traceId);
+                    log.debug("Assigning {}={} for this web request", TRACE_ID_NAME, traceId);
 
                     mdcClosable.set(MDC.putCloseable(TRACE_ID_NAME, traceId));
                     Context ctx = context.put(TRACE_ID_NAME, traceId);
                     exchange.getAttributes().put(TRACE_ID_NAME, traceId);
                     return ctx;
 
-                }))
-                /*.doFinally(r -> {
+                }),
+
+                Mono.never().doFinally(signalType -> {
                     log.debug("Cleaning up reactor context & MDC");
 
                     exchange.getAttributes().remove(TRACE_ID_NAME);
                     mdcClosable.get().close(); // or simply MDC.remove(TRACE_ID_NAME);
-                })*/;
+                })
+
+        ).then();
     }
 
 }

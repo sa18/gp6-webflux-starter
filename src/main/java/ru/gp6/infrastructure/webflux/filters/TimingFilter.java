@@ -21,17 +21,17 @@ public class TimingFilter implements WebFilter {
 
         final AtomicLong start = new AtomicLong();
 
-        return chain.filter(exchange)
-                .doFirst(() -> {
-                    start.set(System.nanoTime());
-                    log.debug("Request started at {}", System.currentTimeMillis());
-                })
-                .doFinally(r -> {
+        return Mono.zip(chain.filter(exchange).doFirst(() -> {
+                            start.set(System.nanoTime());
+                            log.debug("Request started at {}", System.currentTimeMillis());
+                        }),
 
-                    long timeDelta = System.nanoTime() - start.get();
-                    log.debug("Request ended at {}. Elapsed time = {}ms", System.currentTimeMillis(), timeDelta / 1_000_000);
-
-                });
+                        Mono.never().doFinally(signalType -> {
+                            long timeDelta = System.nanoTime() - start.get();
+                            log.debug("Request ended at {}. Elapsed time = {}ms", System.currentTimeMillis(),
+                                    timeDelta / 1_000_000);
+                        }))
+                .then();
     }
 
 }
