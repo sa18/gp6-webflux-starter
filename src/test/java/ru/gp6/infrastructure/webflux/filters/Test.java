@@ -59,8 +59,8 @@ public class Test {
     void в_логе_должна_быть_напечатаны_время_и_информация_об_ошибке() {
         var result = webTestClient
                 .get()
-                //.uri("/test-exception")
-                .uri("/incorrect-uri")
+                .uri("/test-exception")
+                //.uri("/incorrect-uri")
                 .header("Some-Custom-Header", Math.random() + "")
                 .header("Content-Type", "application/json")
                 .exchange()
