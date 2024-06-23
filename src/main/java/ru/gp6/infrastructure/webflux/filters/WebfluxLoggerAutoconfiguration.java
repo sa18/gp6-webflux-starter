@@ -39,8 +39,4 @@ public class WebfluxLoggerAutoconfiguration {
         return new HttpResponseFilter();
     }
 
-    /*@Bean
-    public ErrorHandler errorHandler() {
-        return new ErrorHandler();
-    }*/
 }
