@@ -41,23 +41,22 @@ repositories {
 
 dependencies {
     // Spring
-    //implementation("org.springframework.boot:spring-boot-starter-webflux") use compileOnly instead
-    compileOnly("org.springframework.boot:spring-boot-starter-webflux")
+    api 'org.springframework.boot:spring-boot-starter-webflux'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    testAnnotationProcessor('org.springframework.boot:spring-boot-configuration-processor')
+    testAnnotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    testAnnotationProcessor('org.projectlombok:lombok')
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
     // Slf4j
-    implementation('org.slf4j:slf4j-api:2.+')
+    implementation 'org.slf4j:slf4j-api:2.+'
 
     // UUID
-    implementation('com.github.f4b6a3:uuid-creator:5.+')
+    implementation 'com.github.f4b6a3:uuid-creator:5.+'
 
 }
 
