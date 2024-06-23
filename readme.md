@@ -10,13 +10,13 @@
 
 
 tutorials & docs:
+- https://piotrminkowski.com/2019/10/15/reactive-logging-with-spring-webflux-and-logstash/
 - https://stackoverflow.com/questions/51738140/how-to-correctly-use-slf4j-mdc-in-spring-webflux-webfilter/77418615#77418615
 - https://stackoverflow.com/questions/66408766/implement-trace-id-with-spring-webflux
 - https://stackoverflow.com/questions/76045158/log-all-response-and-request-spring-webflux
 - https://www.baeldung.com/spring-webflux-filters
 - https://www.baeldung.com/mdc-in-log4j-2-logback
 - https://spring.io/blog/2023/03/30/context-propagation-with-project-reactor-3-unified-bridging-between-reactive
-- https://www.vincenzoracca.com/en/blog/framework/spring/spring-webflux-mdc/
 - https://stackoverflow.com/questions/77303677/virtual-threads-and-spring-webflux
 
 Библиотека для скоростного создания UUIDv6, упорядоченных по времени
@@ -27,4 +27,5 @@ tutorials & docs:
 - https://habr.com/ru/articles/537716/
 
 и вообще, оказывается, есть уже готовая либа:
+- https://github.com/kiberohrannik/webflux-log
 - https://github.com/lipiridi/webflux-logging

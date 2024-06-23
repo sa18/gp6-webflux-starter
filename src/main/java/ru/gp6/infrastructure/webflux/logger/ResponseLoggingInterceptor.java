@@ -11,11 +11,15 @@ import reactor.core.publisher.Mono;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.channels.Channels;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 public class ResponseLoggingInterceptor extends ServerHttpResponseDecorator {
-    public ResponseLoggingInterceptor(ServerHttpResponse delegate) {
+    private final AtomicLong start;
+
+    public ResponseLoggingInterceptor(ServerHttpResponse delegate, AtomicLong start) {
         super(delegate);
+        this.start = start;
     }
 
     @Override

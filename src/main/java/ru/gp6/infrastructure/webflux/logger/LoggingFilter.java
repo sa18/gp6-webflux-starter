@@ -43,7 +43,7 @@ public class LoggingFilter implements WebFilter {
 
                 @Override
                 public ServerHttpResponse getResponse() {
-                    return new ResponseLoggingInterceptor(super.getResponse());
+                    return new ResponseLoggingInterceptor(super.getResponse(), start);
                 }
             };
 
@@ -66,10 +66,10 @@ public class LoggingFilter implements WebFilter {
 
             log.info("Request cancelled");
 
-        }).doOnNext(r -> {
+        }).doOnSuccess(r -> {
 
             long timeDelta = System.nanoTime() - start.get();
-            log.debug("Elapsed time = {}ms", timeDelta / 1_000);
+            log.debug("Elapsed time = {}ms", timeDelta / 1_000_000);
 
         }).contextWrite(context -> {
 
