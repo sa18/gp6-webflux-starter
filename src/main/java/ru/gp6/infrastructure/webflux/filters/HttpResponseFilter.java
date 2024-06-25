@@ -7,6 +7,7 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
@@ -14,10 +15,10 @@ public class HttpResponseFilter implements WebFilter {
 
     @NonNull
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+    public Mono<Void> filter(@NonNull ServerWebExchange exchange, WebFilterChain chain) {
 
-        final AtomicReference<Throwable> error = new AtomicReference(null);
-        final AtomicReference<Boolean> isCanceled = new AtomicReference(false);
+        final AtomicReference<Throwable> error = new AtomicReference<>();
+        final AtomicBoolean isCanceled = new AtomicBoolean();
 
         return Mono.zip(
                 chain.filter(exchange)
@@ -31,13 +32,18 @@ public class HttpResponseFilter implements WebFilter {
                         }),
 
                 Mono.never().doFinally(signalType -> {
-                    log.debug("HTTP Response Status = {}", exchange.getResponse().getStatusCode());
 
-                    if (!isCanceled.get() && exchange.getResponse().getStatusCode().is2xxSuccessful()) {
+                    final var statusCode = exchange.getResponse().getStatusCode();
+                    if (statusCode != null) {
+                        log.debug("HTTP Response Status = {}", statusCode);
+                    }
+                    else log.debug("HTTP Response Status is null");
+
+                    if (!isCanceled.get() && (statusCode == null || statusCode.is2xxSuccessful())) {
                         log.debug("HTTP Response Headers:");
 
-                        exchange.getResponse().getHeaders().toSingleValueMap().entrySet().forEach(entry -> {
-                            log.debug("\t{} = {}", entry.getKey(), entry.getValue());
+                        exchange.getResponse().getHeaders().toSingleValueMap().forEach((key, value) -> {
+                            log.debug("\t{} = {}", key, value);
                         });
                     }
 

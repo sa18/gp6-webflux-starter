@@ -7,6 +7,8 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 import reactor.util.context.Context;
 
 import java.util.Optional;
@@ -52,6 +54,7 @@ public class TraceIdFilter implements WebFilter {
                     return ctx;
 
                 }),
+                //}).subscribeOn(Schedulers.boundedElastic()), -- will FAIL :(
 
                 Mono.never().doFinally(signalType -> {
                     log.debug("Cleaning up reactor context & MDC");
